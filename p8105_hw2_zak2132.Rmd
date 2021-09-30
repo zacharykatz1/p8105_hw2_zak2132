@@ -8,12 +8,132 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-# Load tidyverse and readxl packages
+# Load the tidyverse and readxl packages
 library(tidyverse)
 library(readxl)
 ```
 
 ## Problem 1
 
+First, we want to read in the data set, making sure to do the following:
 
+* Specify the sheet in the Excel file and omit non-data entries using arguments in `read_excel`
+* Omit rows that do not include dumpster-specific data
+* Round the number of sports balls to the nearest integer
 
+```{r}
+# Read in the excel file and clean names
+trash_data = read_excel(
+      "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+      sheet = "Mr. Trash Wheel",
+      range = "A2:N408"
+) %>% 
+      janitor::clean_names()
+
+# Omit rows that do not include dumpster-specific data and round sports balls to nearest integer
+trash_data = trash_data %>% 
+      drop_na("dumpster") %>% 
+      mutate(sports_balls = round(sports_balls, 0))
+```
+
+Next, we want to read and clean precipitation data for 2018 and 2019, with the following instructions:
+
+* Omit rows without precipitation data
+* Add a variable for year
+* Combine precipitation datasets and convert month to a character variable
+
+```{r}
+# Read in 2019 precipitation data and clean names
+precipitation_data_2019 = read_excel(
+      "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+      sheet = "2019 Precipitation",
+      skip = 1
+) %>% 
+      janitor::clean_names()
+      
+# Clean 2019 precipitation data
+precipitation_data_2019 = precipitation_data_2019 %>% 
+      drop_na("total") %>% 
+      # Also want to eliminate annual total
+      drop_na("month") %>% 
+      mutate(year = 2019)
+```
+
+Now let's repeat what we did for the 2019 precipitation data, but this time for 2018, then join it to 2019 precipitation data.
+
+```{r}
+# Read in 2018 precipitation data and clean names
+precipitation_data_2018 = read_excel(
+      "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+      sheet = "2018 Precipitation",
+      skip = 1
+) %>% 
+      janitor::clean_names()
+      
+# Clean 2018 precipitation data
+precipitation_data_2018 = precipitation_data_2018 %>% 
+      drop_na("total") %>% 
+      # Also want to eliminate annual total
+      drop_na("month") %>% 
+      mutate(year = 2018)
+
+# Combine precipitation datasets and convert month to a character variable
+precipitation_data_18and19 = bind_rows(
+      precipitation_data_2018, precipitation_data_2019
+) %>% 
+      mutate(month = month.name[month]) %>% 
+      # Will also move year column forward a bit
+      relocate(year, .after = month)
+```
+
+Now that we have our two resulting data sets imported and cleaned, let's explore them.
+
+### `trash_data` from Mr. Trash Wheel dataset
+
+First, let's take a quick look at the head, tail, structure, summary, and skim of the `trash_data` data frame, just for fun.
+
+```{r}
+# Head of trash data frame
+head(trash_data)
+
+# Tail of trash data frame
+tail(trash_data)
+
+# Structure of trash data frame
+str(trash_data)
+
+# Summary of trash data frame
+summary(trash_data)
+
+# Skim of trash data frame
+skimr::skim(trash_data)
+```
+
+The trash data frame, which we call `trash_data`, has `r nrow(trash_data)` observations and `r ncol(trash_data)` variables. These variables are: `r  names(trash_data)`.
+
+We are asked to calculate the median number of sports balls in a dumpster in 2017, which is `r trash_data %>% filter(year == 2017) %>% select(sports_balls) %>% unlist %>% median`.
+
+### `precipitation_data_18and19` from Mr. Trash Wheel dataset
+
+Now, let's also take a look at the precipitation data from 2018 and 2019 that we merged into the `precipitation_data_18and19` data frame.
+
+```{r}
+# Head of precipitation data frame
+head(precipitation_data_18and19)
+
+# Tail of precipitation data frame
+tail(precipitation_data_18and19)
+
+# Structure of precipitation data frame
+str(precipitation_data_18and19)
+
+# Summary of precipitation data frame
+summary(precipitation_data_18and19)
+
+# Skim of precipitation data frame
+skimr::skim(precipitation_data_18and19)
+```
+
+The precipitation data frame, which we call `precipitation_data_18and19`, has `r nrow(precipitation_data_18and19)` observations and `r ncol(precipitation_data_18and19)` variables. These variables are: `r  names(precipitation_data_18and19)`.
+
+We are asked to calculate the total precipitation in 2018, which is equal to `r precipitation_data_18and19 %>% filter(year == 2018) %>% select(total) %>% sum()` inches.
