@@ -1,0 +1,19 @@
+---
+title: "P8105: Homework #2"
+author: "Zachary Katz (UNI: zak2132)"
+date: "9/30/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Load tidyverse and readxl packages
+library(tidyverse)
+library(readxl)
+```
+
+## Problem 1
+
+
+
