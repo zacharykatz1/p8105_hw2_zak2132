@@ -137,3 +137,59 @@ skimr::skim(precipitation_data_18and19)
 The precipitation data frame, which we call `precipitation_data_18and19`, has `r nrow(precipitation_data_18and19)` observations and `r ncol(precipitation_data_18and19)` variables. These variables are: `r  names(precipitation_data_18and19)`.
 
 We are asked to calculate the total precipitation in 2018, which is equal to `r precipitation_data_18and19 %>% filter(year == 2018) %>% select(total) %>% sum()` inches.
+
+## Problem 2
+
+We're going to use FiveThirtyEight data for the next exercise. First, we should import and clean it up. Let's do the `pols-month.csv` data first, which contains observations regarding the political affiliations of national politicians over time.
+
+```{r}
+# Import `pols-month.csv` file
+pols_month = read_csv("Data/pols-month.csv")
+
+# Clean the data in various ways
+pols_month = pols_month %>%
+   janitor::clean_names() %>% 
+   # Break up variable into integer variables
+   separate(col = mon, into = c("year", "month", "day"), sep = "-") %>% 
+   mutate(year = as.numeric(year), 
+          month = as.numeric(month), 
+          day = as.numeric(day)) %>% 
+   # Replace month number with month name
+   mutate(month = month.name[month]) %>% 
+   # Create `president` variable with values from `prez_dem` and 'prez_gop` then remove extraneous vars
+   pivot_longer(
+      cols = c("prez_dem", "prez_gop"),
+      names_to = "presidential_party",
+      values_to = "has_president") %>% 
+   filter(has_president == 1) %>% 
+   select(-has_president) %>% 
+   mutate(presidential_party = recode(presidential_party, "prez_dem" = "dem", "prez_gop" = "gop")) %>% 
+   # Remove the `day` variable
+   select(-day)
+
+View(pols_month)
+```
+
+Now that we've cleaned up the `pols_month` data, let's read in and clean up the `snp` data, too! These are observations of variables related to the S&P market index.
+
+```{r}
+# Note that `read_csv` imported a df with 789 columns and 0 rows, so had to use `read.csv` function instead
+snp_df = read.csv("Data/snp.csv") %>% 
+   janitor::clean_names() %>% 
+   # Break up and clean date variable
+   separate(col = date, into = c("month", "day", "year"), sep = "/") %>% 
+   mutate(year = as.numeric(year), 
+          month = as.numeric(month), 
+          day = as.numeric(day)) %>% 
+   # Replace month number with month name
+   mutate(month = month.name[month])
+
+View(snp_df)
+```
+
+Finally, let's bring in the unemployment data.
+
+```{r}
+
+```
+
