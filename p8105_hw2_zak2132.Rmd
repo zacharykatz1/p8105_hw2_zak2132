@@ -144,10 +144,10 @@ We're going to use FiveThirtyEight data for the next exercise. First, we should 
 
 ```{r}
 # Import `pols-month.csv` file
-pols_month = read_csv("Data/pols-month.csv")
+pols_month_df = read_csv("Data/pols-month.csv")
 
 # Clean the data in various ways
-pols_month = pols_month %>%
+pols_month_df = pols_month_df %>%
    janitor::clean_names() %>% 
    # Break up variable into integer variables
    separate(col = mon, into = c("year", "month", "day"), sep = "-") %>% 
@@ -167,7 +167,7 @@ pols_month = pols_month %>%
    # Remove the `day` variable
    select(-day)
 
-View(pols_month)
+View(pols_month_df)
 ```
 
 Now that we've cleaned up the `pols_month` data, let's read in and clean up the `snp` data, too! These are observations of variables related to the S&P market index.
@@ -181,15 +181,61 @@ snp_df = read.csv("Data/snp.csv") %>%
    mutate(year = as.numeric(year), 
           month = as.numeric(month), 
           day = as.numeric(day)) %>% 
-   # Replace month number with month name
-   mutate(month = month.name[month])
+   # Replace month number with month name and remove `day` variable
+   mutate(month = month.name[month]) %>% 
+   select(-day)
 
 View(snp_df)
 ```
 
-Finally, let's bring in the unemployment data.
+Finally, let's import and tidy the unemployment data so that it can be merged with the other two datasets. For instance, we need to make sure the keys have the same names and take the same values.
 
 ```{r}
+# Import `unemployment` dataset, noting that similar to the prior dataset, we had to use `read.csv` instead of `read_csv` to get the correct/expected number of observations and variables
+unemployment_df = read.csv("Data/unemployment.csv") %>% 
+   janitor::clean_names() %>% 
+   # Pivot longer to get tidy data
+   pivot_longer(
+      cols = jan:dec,
+      names_to = "month",
+      values_to = "percent_unemployed"
+   ) %>% 
+   # Recode month names
+   mutate(month = recode(month, 
+                         "jan" = "January",
+                         "feb" = "February",
+                         "mar" = "March",
+                         "apr" = "April",
+                         "may" = "May",
+                         "jun" = "June",
+                         "jul" = "July",
+                         "aug" = "August",
+                         "sep" = "September",
+                         "oct" = "October",
+                         "nov" = "November",
+                         "dec" = "December")) %>%
+   # Make sure table is a data frame structure
+   data.frame()
 
+View(unemployment_df)
+```
+
+Now that we have three tidy datasets, we want to merge them using `year` and `month` as keys. 
+
+Begin by merging `snp` into `pols`, and then proceed by merging `unemployment` into the result. We should use a *left join* to make sure we keep all entries in `pols_month_df` and only joining observations from the S&P that also occur in the months recorded for `pols_month_df`.
+
+Once we have our intermediate df, which we call `pols_and_snp_df`, we then do another left join with `unemployment_df`, keeping only those unemployment observations that have corresponding `month` and `year` in `pols_and_snp_df`, but all observations from the latter regardless of whether matching unemployment data is available.
+
+```{r}
+# Keep all observations in `pols_month_df`, but only include observations from `pols_df` that match on the `month` and `year` keys
+pols_and_snp_df = 
+   left_join(pols_month_df, snp_df, by = c("year", "month"))
+
+# Keep all observations in intermediate dataframe `pols_and_snp_df`, and left join with `unemployment_df` on the same keys
+# Note that we need to convert `unemployment_df` to a data frame in this step
+final_df =
+   left_join(pols_and_snp_df, unemployment_df, by = c("year", "month")) %>% 
+   # Rename `close` column to be more descriptive
+   rename("snp_close" = "close")
 ```
 
