@@ -173,8 +173,8 @@ View(pols_month_df)
 Now that we've cleaned up the `pols_month` data, let's read in and clean up the `snp` data, too! These are observations of variables related to the S&P market index.
 
 ```{r}
-# Note that `read_csv` imported a df with 789 columns and 0 rows, so had to use `read.csv` function instead
-snp_df = read.csv("Data/snp.csv") %>% 
+# Import using `read_csv` and start cleaning
+snp_df = read_csv("Data/snp.csv") %>% 
    janitor::clean_names() %>% 
    # Break up and clean date variable
    separate(col = date, into = c("month", "day", "year"), sep = "/") %>% 
@@ -191,7 +191,7 @@ View(snp_df)
 Finally, let's import and tidy the unemployment data so that it can be merged with the other two datasets. For instance, we need to make sure the keys have the same names and take the same values.
 
 ```{r}
-# Import `unemployment` dataset, noting that similar to the prior dataset, we had to use `read.csv` instead of `read_csv` to get the correct/expected number of observations and variables
+# Import `unemployment` dataset and start to clean; had to use `read.csv` instead of `read_csv` to get expected number of variables and observation
 unemployment_df = read.csv("Data/unemployment.csv") %>% 
    janitor::clean_names() %>% 
    # Pivot longer to get tidy data
