@@ -6,6 +6,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
+# I promise this is the only $ sign in the entire file
 knitr::opts_chunk$set(echo = TRUE)
 
 # Load the tidyverse and readxl packages
@@ -399,7 +400,7 @@ ggplot(
       x = "Popularity rank",
       y = "# of children"
    ) + 
-   # We can even add a trend line
+   # We can even add a trend line (just for fun!)
    geom_smooth(se = FALSE)
 ```
 
