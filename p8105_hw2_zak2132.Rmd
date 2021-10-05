@@ -12,7 +12,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load the tidyverse and readxl packages
 library(tidyverse)
 library(readxl)
-library(lubridate)
 ```
 
 ## Problem 1
@@ -23,7 +22,7 @@ First, we want to read in the data set, making sure to do the following:
 * Omit rows that do not include dumpster-specific data
 * Round the number of sports balls to the nearest integer
 
-```{r}
+```{r Read and clean Mr. Trash Wheel data}
 # Read in the Mr. Trash Wheel excel file
 trash_data = read_excel(
       "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
@@ -35,6 +34,9 @@ trash_data = read_excel(
    # Omit rows that do not include dumpster-specific data and round sports balls to nearest integer
    drop_na("dumpster") %>% 
    mutate(sports_balls = round(sports_balls, 0))
+
+# View head
+head(trash_data) %>% knitr::kable()
 ```
 
 Next, we want to read and clean precipitation data for 2018 and 2019, with the following instructions:
@@ -43,7 +45,7 @@ Next, we want to read and clean precipitation data for 2018 and 2019, with the f
 * Add a variable for year
 * Combine precipitation datasets and convert month to a character variable
 
-```{r}
+```{r Read and clean 2019 precipitation data}
 # Read in 2019 precipitation data
 precipitation_data_2019 = read_excel(
       "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
@@ -55,13 +57,13 @@ precipitation_data_2019 = read_excel(
       drop_na("total") %>% 
       # Also want to eliminate annual total
       drop_na("month") %>% 
-      # Add year column
+      # Add year column and convert month to character variable
       mutate(year = 2019)
 ```
 
 Now let's repeat what we did for the 2019 precipitation data, but this time for 2018, then join it to 2019 precipitation data.
 
-```{r}
+```{r Read and clean 2018 data and combine with 2019 data}
 # Read in 2018 precipitation data and clean names
 precipitation_data_2018 = read_excel(
       "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
@@ -82,6 +84,9 @@ precipitation_data_18and19 = bind_rows(
       mutate(month = month.name[month]) %>% 
       # Will also move year column forward a bit
       relocate(year, .after = month)
+
+# View head of combined precipitation data
+head(precipitation_data_18and19) %>% knitr::kable()
 ```
 
 Now that we have our two resulting data sets imported and cleaned, let's explore them.
@@ -90,7 +95,7 @@ Now that we have our two resulting data sets imported and cleaned, let's explore
 
 First, let's take a quick look at the head, tail, structure, summary, and skim of the `trash_data` data frame, just for fun.
 
-```{r}
+```{r EDA of trash data frame}
 # Head of trash data frame
 head(trash_data)
 
@@ -107,7 +112,7 @@ summary(trash_data)
 skimr::skim(trash_data)
 ```
 
-The trash data frame, which we call `trash_data`, has `r nrow(trash_data)` observations and `r ncol(trash_data)` variables. These variables are: `r  names(trash_data)`.
+The trash data frame, which we call `trash_data`, has `r nrow(trash_data)` observations and `r ncol(trash_data)` variables. These variables are: `r  names(trash_data)`. `Dumpster` is the dumpster identifier, ranging from `r min(pull(trash_data, dumpster))` to `r max(pull(trash_data, dumpster))`. `Year`, `month`, and `date` are time variables. The rest are numeric variables that describe the weight and volume of the dumpster haul, and variables that show counts of those objects, like glass bottles, sports balls, and grocery bags.
 
 We are asked to calculate the median number of sports balls in a dumpster in 2017, which is `r trash_data %>% filter(year == 2017) %>% select(sports_balls) %>% unlist %>% median`.
 
@@ -115,7 +120,7 @@ We are asked to calculate the median number of sports balls in a dumpster in 201
 
 Now, let's also take a look at the precipitation data from 2018 and 2019 that we merged into the `precipitation_data_18and19` data frame.
 
-```{r}
+```{r EDA of combined precipitation data frame}
 # Head of precipitation data frame
 head(precipitation_data_18and19)
 
@@ -132,7 +137,7 @@ summary(precipitation_data_18and19)
 skimr::skim(precipitation_data_18and19)
 ```
 
-The precipitation data frame, which we call `precipitation_data_18and19`, has `r nrow(precipitation_data_18and19)` observations and `r ncol(precipitation_data_18and19)` variables. These variables are: `r  names(precipitation_data_18and19)`.
+The precipitation data frame, which we call `precipitation_data_18and19`, has `r nrow(precipitation_data_18and19)` observations and `r ncol(precipitation_data_18and19)` variables. These variables are: `r  names(precipitation_data_18and19)`. Of these, `year` and `month` are time-related variables, while `total` denotes the total inches of precipitation in a given month, and ranges from `r min(pull(precipitation_data_18and19, total))` to `r max(pull(precipitation_data_18and19, total))`. Mean monthly precipitation is equal to `r round(mean(pull(precipitation_data_18and19, total)), 2)` inches.
 
 We are asked to calculate the total precipitation in 2018, which is equal to `r precipitation_data_18and19 %>% filter(year == 2018) %>% select(total) %>% sum()` inches.
 
@@ -140,7 +145,7 @@ We are asked to calculate the total precipitation in 2018, which is equal to `r 
 
 We're going to use FiveThirtyEight data for the next exercise. First, we should import and clean it up. Let's do the `pols-month.csv` data first, which contains observations regarding the political affiliations of national politicians over time.
 
-```{r}
+```{r Read and clean pols monthly data}
 # Import `pols-month.csv` file
 pols_month_df = read_csv("Data/pols-month.csv")
 
@@ -166,12 +171,12 @@ pols_month_df = pols_month_df %>%
    select(-day)
 
 # Check out the head of the data frame
-head(pols_month_df)
+head(pols_month_df) %>% knitr::kable()
 ```
 
 Now that we've cleaned up the `pols_month` data, let's read in and clean up the `snp` data, too! These are observations of variables related to the S&P market index.
 
-```{r}
+```{r Read and clean S&P 500 data}
 # Import using `read_csv` and start cleaning
 snp_df = read_csv("Data/snp.csv") %>% 
    janitor::clean_names() %>% 
@@ -188,12 +193,11 @@ snp_df = read_csv("Data/snp.csv") %>%
       year >= 50 ~ as.numeric(paste(19, year, sep = "")),
       year < 50 ~ as.numeric(paste(20, year, sep = "")))
    )
-
 ```
 
 Finally, let's import and tidy the unemployment data so that it can be merged with the other two datasets. For instance, we need to make sure the keys have the same names and take the same values.
 
-```{r}
+```{r Import and clean unemployment data}
 # Import `unemployment` dataset and start to clean, using read_csv
 unemployment_df = read_csv("Data/unemployment.csv") %>% 
    janitor::clean_names() %>% 
@@ -221,7 +225,7 @@ unemployment_df = read_csv("Data/unemployment.csv") %>%
    data.frame()
 
 # Check out the head of the data frame
-head(unemployment_df)
+head(unemployment_df) %>% knitr::kable()
 ```
 
 Now that we have three tidy datasets, we want to merge them using `year` and `month` as keys. 
@@ -230,7 +234,7 @@ Begin by merging `snp` into `pols`, and then proceed by merging `unemployment` i
 
 Once we have our intermediate df, which we call `pols_and_snp_df`, we then do another left join with `unemployment_df`, keeping only those unemployment observations that have corresponding `month` and `year` in `pols_and_snp_df`, but all observations from the latter regardless of whether matching unemployment data is available.
 
-```{r}
+```{r Merge the three FiveThirtyEight data sets}
 # Keep all observations in `pols_month_df`, but only include observations from `pols_df` that match on the `month` and `year` keys
 pols_and_snp_df = 
    left_join(pols_month_df, snp_df, by = c("year", "month"))
@@ -243,18 +247,18 @@ final_df =
    rename("snp_close" = "close")
 
 # Check out head of final df post-join
-final_df
+head(final_df) %>% knitr::kable()
 ```
 
-Finally, let's describe each of the three original data frames, and then the merged data frame.
+Finally let's describe each of the three original data frames, and then the merged data frame.
 
-The `pols_month_df` data frame contains `r nrow(pols_month_df)` observations of `r ncol(pols_month_df)` variables related to the number of Democrat or Republican (GOP) national politicians ranging from the years `r min(pull(pols_month_df, year))` to `r max(pull(pols_month_df, year))`. Variables include `r names(pols_month_df)`, which generally convey information about the number of governors, senators, and representatives from each party in any given month, as well as the president's party.
+The `pols_month_df` data frame contains `r nrow(pols_month_df)` observations of `r ncol(pols_month_df)` variables related to the number of Democrat or Republican (GOP) national politicians ranging from the years `r min(pull(pols_month_df, year))` to `r max(pull(pols_month_df, year))`. Variables include `r names(pols_month_df)`, which generally convey information about the number of governors, senators, and representatives from each party in any given month, as well as the president's party. Years in the dataset range from `r min(pull(pols_month_df, year))` to `r max(pull(pols_month_df, year))`. We have introduced a new variable `presidential_party` to indicate which party controls the presidency in a given year.
 
-The `snp_df` data frame contains `r nrow(snp_df)` observations of `r ncol(snp_df)` variables related to the S&P stock market index ranging from the years `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`. Variables include `r names(snp_df)`, which generally convey information about the closing values of the S&P stock index on an early day (typically 1st, 2nd, or 3rd) of any given month.
+The `snp_df` data frame contains `r nrow(snp_df)` observations of `r ncol(snp_df)` variables related to the S&P stock market index ranging from the years `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`. Variables include `r names(snp_df)`, which generally convey information about the closing values of the S&P stock index on an early day (typically 1st, 2nd, or 3rd) of any given month. Years in the dataset range from `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`.
 
-The `unemployment_df` data frame contains `r nrow(unemployment_df)` observations of `r ncol(unemployment_df)` variables related to the unemployment rate by month ranging from the years `r min(pull(unemployment_df, year))` to `r max(pull(unemployment_df, year))`. Variables include `r names(unemployment_df)`, with `percent_unemployed` conveying the percent unemployed in each month.
+The `unemployment_df` data frame contains `r nrow(unemployment_df)` observations of `r ncol(unemployment_df)` variables related to the unemployment rate by month ranging from the years `r min(pull(unemployment_df, year))` to `r max(pull(unemployment_df, year))`. Variables include `r names(unemployment_df)`, with `percent_unemployed` conveying the percent unemployed in each month. Years in the dataset range from `r min(pull(unemployment_df, year))` to `r max(pull(unemployment_df, year))`.
 
-Finally, we merged these dataframes into a unified dataframe called `final_df` using left joins from the original `pols_month_df` dataframe, meaning that the final table took only those `snp_df` and `unemployment_df` observations that matched on the `month` and `year` keys to the `pols_month_df`. In other words, the `final_df` could have no more observations than the `pols_month_df`, which we find to be true: it has `r nrow(final_df)` observations of `r ncol(final_df)` variables, which makes sense because we simply added one non-key column from each of the other two data frames (`snp_close` and `percent_unemployed`). Of course, the monthly data in this final data frame ranges over the same years, from `r min(pull(final_df, year))` to `r max(pull(final_df, year))`.
+Finally, we merged these dataframes into a unified dataframe called `final_df` using left joins from the original `pols_month_df` dataframe, meaning that the final table took only those `snp_df` and `unemployment_df` observations that matched on the `month` and `year` keys to the `pols_month_df`. In other words, the `final_df` could have no more observations than the `pols_month_df`, which we find to be true: it has `r nrow(final_df)` observations of `r ncol(final_df)` variables, which makes sense because we simply added one non-key column from each of the other two data frames (`snp_close` and `percent_unemployed`). Of course, the monthly data in this final data frame ranges over the same years, from `r min(pull(final_df, year))` to `r max(pull(final_df, year))`. In total, the dataset has `r sum(!complete.cases(pull(final_df, close)))` rows missing values for the `close` variable and `r sum(!complete.cases(pull(final_df, percent_unemployed)))` missing values for the `percent_unemployed` variable.
 
 ## Problem 3
 
