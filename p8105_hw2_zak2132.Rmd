@@ -193,7 +193,8 @@ snp_df = read_csv("Data/snp.csv") %>%
    # Convert year from two digits to four digits
    mutate(year = case_when(
       year >= 50 ~ as.numeric(paste(19, year, sep = "")),
-      year < 50 ~ as.numeric(paste(20, year, sep = "")))
+      year < 50 & year > 9 ~ as.numeric(paste(20, year, sep = "")),
+      year <= 9 ~ as.numeric(paste(200, year, sep = "")))
    )
 
 # View head of data frame
@@ -413,7 +414,7 @@ ggplot(
       x = "Popularity rank",
       y = "# of children"
    ) + 
-   # We can even add a trend line (just for fun!)
+   # Optionally, we can even add a trend line (just for fun!)
    geom_smooth(se = FALSE)
 ```
 
