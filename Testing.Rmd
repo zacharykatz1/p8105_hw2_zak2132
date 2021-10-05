@@ -163,7 +163,8 @@ pols_month_df = pols_month_df %>%
    # Remove the `day` variable
    select(-day)
 
-View(pols_month_df)
+# Check out the head of the data frame
+head(pols_month_df)
 ```
 
 Now that we've cleaned up the `pols_month` data, let's read in and clean up the `snp` data, too! These are observations of variables related to the S&P market index.
@@ -181,7 +182,8 @@ snp_df = read_csv("Data/snp.csv") %>%
    mutate(month = month.name[month]) %>% 
    select(-day)
 
-View(snp_df)
+# Check out the head of the data frame
+head(snp_df)
 ```
 
 Finally, let's import and tidy the unemployment data so that it can be merged with the other two datasets. For instance, we need to make sure the keys have the same names and take the same values.
@@ -213,7 +215,8 @@ unemployment_df = read_csv("Data/unemployment.csv") %>%
    # Make sure table is a data frame structure
    data.frame()
 
-View(unemployment_df)
+# Check out the head of the data frame
+head(unemployment_df)
 ```
 
 Now that we have three tidy datasets, we want to merge them using `year` and `month` as keys. 
@@ -234,7 +237,8 @@ final_df =
    # Rename `close` column to be more descriptive
    rename("snp_close" = "close")
 
-View(final_df)
+# Check out head of final df post-join
+final_df
 ```
 
 Finally, let's describe each of the three original data frames, and then the merged data frame.
@@ -286,10 +290,11 @@ baby_names_df = baby_names_df %>%
    rename("birth_year" = "year_of_birth",
           "name" = "childs_first_name")
 
-View(baby_names_df)
+# Check out head of data frame
+head(baby_names_df)
 ```
 
-Tidy data has one observation per row, one variable per column, and one value per cell. The `r ncol(baby_names_df)` columns in this data frame are `r names(baby_names_df)`, and at first glance, these are all variables. Each of the `r nrow(baby_names_df)` rows in the data frame also seems to represent a single observation, and each cell contains a value that corresponds to the proper observation and variable. Great!
+idy data has one observation per row, one variable per column, and one value per cell. The `r ncol(baby_names_df)` columns in this data frame are `r names(baby_names_df)`, and at first glance, these are all variables. Each of the `r nrow(baby_names_df)` rows in the data frame also seems to represent a single observation, and each cell contains a value that corresponds to the proper observation and variable. Great!
 
 One thing we could do is recode gender and ethnicity as factor variables, which may make our analysis easier. We also want to deduplicate rows.
 
@@ -323,7 +328,7 @@ baby_names_df = baby_names_df %>%
 levels(pull(baby_names_df, ethnicity))
 ```
 
-We are then asked to create a well-structured, reader-friendly table showing the rank in popularity of the name "Olivia" as a female baby name over time, with rows for ethnicities and columns for year. We do so in the following way
+We are then asked to create a well-structured, reader-friendly table showing the rank in popularity of the name "Olivia" as a female baby name over time, with rows for ethnicities and columns for year. We do so in the following way:
 
 ```{r}
 # Track popularity rank of "Olivia" for female babies over time
@@ -341,6 +346,7 @@ olivia_popularity = baby_names_df %>%
    # Put in reader-friendly tabular format
    knitr::kable()
 
+# View table of Olivias
 olivia_popularity
 ```
 
@@ -361,6 +367,7 @@ popular_male_names = baby_names_df %>%
    # Put table in reader-friendly format
    knitr::kable()
 
+# View table of popular male names
 popular_male_names
 ```
 
@@ -391,8 +398,9 @@ ggplot(
       subtitle = "For White, Non-Hispanic Male Babies Born in 2016",
       x = "Popularity rank",
       y = "# of children"
-   )
+   ) + 
+   # We can even add a trend line
+   geom_smooth(se = FALSE)
 ```
 
 How interesting! There seems to be an inverse exponential relationship: as we go in descending order from popularity rank 1 down to 100, the # of children born with that name seems to exponentially decline.
-
