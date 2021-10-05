@@ -141,6 +141,8 @@ The precipitation data frame, which we call `precipitation_data_18and19`, has `r
 
 We are asked to calculate the total precipitation in 2018, which is equal to `r precipitation_data_18and19 %>% filter(year == 2018) %>% select(total) %>% sum()` inches.
 
+(Note that the `precipitation_data_18and19` data frame is simply a composition of the 2018 and 2019 data frames `precipitation_data_2018` and `precipitation_data_2019`. The 2018 data frame has `r nrow(precipitation_data_2018)` observations on `r ncol(precipitation_data_2018)` variables, which are `r names(precipitation_data_2018)`, i.e. the same variables for the merged data frame `precipitation_data_18and19`. The 2019 data frame also has `r nrow(precipitation_data_2019)` observations on `r ncol(precipitation_data_2019)` variables, which are identical variables to those mentioned above.)
+
 ## Problem 2
 
 We're going to use FiveThirtyEight data for the next exercise. First, we should import and clean it up. Let's do the `pols-month.csv` data first, which contains observations regarding the political affiliations of national politicians over time.
@@ -193,6 +195,9 @@ snp_df = read_csv("Data/snp.csv") %>%
       year >= 50 ~ as.numeric(paste(19, year, sep = "")),
       year < 50 ~ as.numeric(paste(20, year, sep = "")))
    )
+
+# View head of data frame
+head(snp_df) %>% knitr::kable()
 ```
 
 Finally, let's import and tidy the unemployment data so that it can be merged with the other two datasets. For instance, we need to make sure the keys have the same names and take the same values.
