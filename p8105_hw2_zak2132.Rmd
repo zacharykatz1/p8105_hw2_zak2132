@@ -264,15 +264,15 @@ Finally, we merged these dataframes into a unified dataframe called `final_df` u
 
 This problem requires us to use data from NYC Open data regarding baby name popularity -- so let's import that to start.
 
-```{r}
+```{r Import NYC Open data set for names}
 # Import NYC Open data set for baby name popularity
 baby_names_df = read_csv("Data/Popular_Baby_Names.csv") %>% 
    janitor::clean_names()
 ```
 
-Before we tidy the data, let's examine its basic structure.
+Before we tidy the data, let's examine its basic structure so we can tell what needs to be tidied up.
 
-```{r}
+```{r Examine initial structure of baby data}
 # Head of baby_names_df
 head(baby_names_df)
 
@@ -286,9 +286,9 @@ str(baby_names_df)
 summary(baby_names_df)
 ```
 
-Even before tidying the data, let's deal with the issue that immediately sticks out, which are the all uppercase entries in `gender`, `ethnicity`, and `childs_first_name`, as well as a couple of unnecessary long column names.
+As we begin tidying the data, let's deal with the issue that immediately sticks out, which are the all uppercase entries in `gender`, `ethnicity`, and `childs_first_name`, as well as a couple of unnecessary long column names.
 
-```{r}
+```{r Start cleaning baby data}
 # Fix naming conventions
 baby_names_df = baby_names_df %>% 
    # Convert all uppercase entries to title case
@@ -299,15 +299,15 @@ baby_names_df = baby_names_df %>%
    rename("birth_year" = "year_of_birth",
           "name" = "childs_first_name")
 
-# Check out head of data frame
-head(baby_names_df)
+# View head of data frame
+head(baby_names_df) %>% knitr::kable()
 ```
 
-idy data has one observation per row, one variable per column, and one value per cell. The `r ncol(baby_names_df)` columns in this data frame are `r names(baby_names_df)`, and at first glance, these are all variables. Each of the `r nrow(baby_names_df)` rows in the data frame also seems to represent a single observation, and each cell contains a value that corresponds to the proper observation and variable. Great!
+This is an improvement! Tidy data has one observation per row, one variable per column, and one value per cell. The `r ncol(baby_names_df)` columns in this data frame are `r names(baby_names_df)`, and at first glance, these are all variables. Each of the `r nrow(baby_names_df)` rows in the data frame also seems to represent a single observation, and each cell contains a value that corresponds to the proper observation and variable. Great!
 
 One thing we could do is recode gender and ethnicity as factor variables, which may make our analysis easier. We also want to deduplicate rows.
 
-```{r}
+```{r Continue cleaning baby data}
 # Continue cleaning data frame
 baby_names_df = baby_names_df %>%
    # Recode `gender` and `ethnicity` as factor variables
@@ -325,7 +325,7 @@ levels(pull(baby_names_df, ethnicity))
 
 Now that we've deduplicated rows, there are now only `r nrow(baby_names_df)` observations, which is far fewer than before. However, we need to fix the factors for ethnicity.
 
-```{r}
+```{r Recode ethnicity factors in baby data}
 # Recode factors in `ethnicity`
 baby_names_df = baby_names_df %>% 
    mutate(ethnicity = recode(ethnicity,
@@ -339,7 +339,7 @@ levels(pull(baby_names_df, ethnicity))
 
 We are then asked to create a well-structured, reader-friendly table showing the rank in popularity of the name "Olivia" as a female baby name over time, with rows for ethnicities and columns for year. We do so in the following way:
 
-```{r}
+```{r Popularity of name Olivia}
 # Track popularity rank of "Olivia" for female babies over time
 olivia_popularity = baby_names_df %>% 
    # No need for count value
@@ -361,7 +361,7 @@ olivia_popularity
 
 Now we want to create a similar table showing most popular name among male children over time. I assume that we want to do so preserving each ethnic category as its own row again, and each year as a column.
 
-```{r}
+```{r Popular male names over time}
 # Filter popular male names by ethnicity over time
 popular_male_names = baby_names_df %>% 
    # Select only male names ranked #1 for each ethnicity
@@ -382,7 +382,7 @@ popular_male_names
 
 Finally, for male, white non-hispanic children born in 2016, we want to produce a scatter plot showing the number of children with a name (y-axis) against the rank in popularity of that name (x-axis).
 
-```{r}
+```{r Count vs rank in popularity graph}
 # Create the data frame for the scatter plot with appropriate filters and scoped set of variables
 scatterplot_df = baby_names_df %>% 
    # Filter for appropriate variables (birth year, gender, ethnicity)
