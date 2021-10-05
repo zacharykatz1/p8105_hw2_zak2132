@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load the tidyverse and readxl packages
 library(tidyverse)
 library(readxl)
+library(lubridate)
 ```
 
 ## Problem 1
@@ -181,10 +182,13 @@ snp_df = read_csv("Data/snp.csv") %>%
           day = as.numeric(day)) %>% 
    # Replace month number with month name and remove `day` variable
    mutate(month = month.name[month]) %>% 
-   select(-day)
+   select(-day) %>% 
+   # Convert year from two digits to four digits
+   mutate(year = case_when(
+      year >= 50 ~ as.numeric(paste(19, year, sep = "")),
+      year < 50 ~ as.numeric(paste(20, year, sep = "")))
+   )
 
-# Check out the head of the data frame
-head(snp_df)
 ```
 
 Finally, let's import and tidy the unemployment data so that it can be merged with the other two datasets. For instance, we need to make sure the keys have the same names and take the same values.
