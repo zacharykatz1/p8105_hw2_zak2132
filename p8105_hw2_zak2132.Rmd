@@ -147,7 +147,7 @@ We are asked to calculate the total precipitation in 2018, which is equal to `r 
 
 We're going to use FiveThirtyEight data for the next exercise. First, we should import and clean it up. Let's do the `pols-month.csv` data first, which contains observations regarding the political affiliations of national politicians over time.
 
-```{r Read and clean pols monthly data}
+```{r Read and clean pols monthly data, message=FALSE, warning=FALSE}
 # Import `pols-month.csv` file
 pols_month_df = read_csv("Data/pols-month.csv")
 
@@ -178,7 +178,7 @@ head(pols_month_df) %>% knitr::kable()
 
 Now that we've cleaned up the `pols_month` data, let's read in and clean up the `snp` data, too! These are observations of variables related to the S&P market index.
 
-```{r Read and clean S&P 500 data}
+```{r Read and clean S&P 500 data, message=FALSE, warning=FALSE}
 # Import using `read_csv` and start cleaning
 snp_df = read_csv("Data/snp.csv") %>% 
    janitor::clean_names() %>% 
@@ -203,7 +203,7 @@ head(snp_df) %>% knitr::kable()
 
 Finally, let's import and tidy the unemployment data so that it can be merged with the other two datasets. For instance, we need to make sure the keys have the same names and take the same values.
 
-```{r Import and clean unemployment data}
+```{r Import and clean unemployment data, message=FALSE, warning=FALSE}
 # Import `unemployment` dataset and start to clean, using read_csv
 unemployment_df = read_csv("Data/unemployment.csv") %>% 
    janitor::clean_names() %>% 
@@ -270,7 +270,7 @@ Finally, we merged these dataframes into a unified dataframe called `final_df` u
 
 This problem requires us to use data from NYC Open data regarding baby name popularity -- so let's import that to start.
 
-```{r Import NYC Open data set for names}
+```{r Import NYC Open data set for names, message=FALSE, warning=FALSE}
 # Import NYC Open data set for baby name popularity
 baby_names_df = read_csv("Data/Popular_Baby_Names.csv") %>% 
    janitor::clean_names()
@@ -321,15 +321,16 @@ baby_names_df = baby_names_df %>%
           ethnicity = as.factor(ethnicity)) %>% 
    # Deduplicate rows
    distinct()
+```
 
-# What are the categories/factors for gender?
-levels(pull(baby_names_df, gender))
+Now that we've deduplicated rows, there are now only `r nrow(baby_names_df)` observations, which is far fewer than before. However, we need to fix the factors for ethnicity, which are:
 
+```{r Check ethnicity factors, echo=FALSE}
 # What are the categories/factors for ethnicity?
 levels(pull(baby_names_df, ethnicity))
 ```
 
-Now that we've deduplicated rows, there are now only `r nrow(baby_names_df)` observations, which is far fewer than before. However, we need to fix the factors for ethnicity.
+Let's recode them.
 
 ```{r Recode ethnicity factors in baby data}
 # Recode factors in `ethnicity`
@@ -388,7 +389,7 @@ popular_male_names
 
 Finally, for male, white non-hispanic children born in 2016, we want to produce a scatter plot showing the number of children with a name (y-axis) against the rank in popularity of that name (x-axis).
 
-```{r Count vs rank in popularity graph}
+```{r Count vs rank in popularity graph, warning=FALSE, message=FALSE}
 # Create the data frame for the scatter plot with appropriate filters and scoped set of variables
 scatterplot_df = baby_names_df %>% 
    # Filter for appropriate variables (birth year, gender, ethnicity)
