@@ -166,7 +166,7 @@ pols_month_df = pols_month_df %>%
       cols = c("prez_dem", "prez_gop"),
       names_to = "presidential_party",
       values_to = "has_president") %>% 
-   filter(has_president == 1) %>% 
+   filter(has_president == 1 | has_president == 2) %>% 
    select(-has_president) %>% 
    mutate(presidential_party = recode(presidential_party, "prez_dem" = "dem", "prez_gop" = "gop")) %>% 
    # Remove the `day` variable
