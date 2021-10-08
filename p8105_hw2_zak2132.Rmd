@@ -27,16 +27,23 @@ First, we want to read in the data set, making sure to do the following:
 trash_data = read_excel(
       "Data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
       sheet = "Mr. Trash Wheel",
-      range = "A2:N408"
+      range = "A2:N534"
 ) %>% 
    # Clean names
    janitor::clean_names() %>%
    # Omit rows that do not include dumpster-specific data and round sports balls to nearest integer
-   drop_na("dumpster") %>% 
-   mutate(sports_balls = round(sports_balls, 0))
+   drop_na("dumpster") %>%
+   mutate(sports_balls = round(sports_balls, 0)) %>% 
+   mutate(
+      month = recode(month,
+            "Decemeber" = "December")
+   )
 
 # View head
 head(trash_data) %>% knitr::kable()
+
+# View tail
+tail(trash_data) %>% knitr::kable()
 ```
 
 Next, we want to read and clean precipitation data for 2018 and 2019, with the following instructions:
