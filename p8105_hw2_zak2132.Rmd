@@ -25,7 +25,7 @@ First, we want to read in the data set, making sure to do the following:
 ```{r Read and clean Mr. Trash Wheel data}
 # Read in the Mr. Trash Wheel excel file
 trash_data = read_excel(
-      "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+      "Data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
       sheet = "Mr. Trash Wheel",
       range = "A2:N408"
 ) %>% 
@@ -48,7 +48,7 @@ Next, we want to read and clean precipitation data for 2018 and 2019, with the f
 ```{r Read and clean 2019 precipitation data}
 # Read in 2019 precipitation data
 precipitation_data_2019 = read_excel(
-      "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+      "Data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
       sheet = "2019 Precipitation",
       skip = 1
 ) %>% 
@@ -66,7 +66,7 @@ Now let's repeat what we did for the 2019 precipitation data, but this time for 
 ```{r Read and clean 2018 data and combine with 2019 data}
 # Read in 2018 precipitation data and clean names
 precipitation_data_2018 = read_excel(
-      "Data/Trash-Wheel-Collection-Totals-8-6-19.xlsx",
+      "Data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx",
       sheet = "2018 Precipitation",
       skip = 1
 ) %>% 
